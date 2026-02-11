@@ -38,8 +38,23 @@ int main(int argc, char *argv[])
     initialize_game();
 
     // Prompt for players names
-    
-    // initialize each of the players in the array
+    printf("Welcome to Jeopardy!\n");
+    for (int i = 0; i < NUM_PLAYERS; i++) 
+    {
+        printf("Please enter the name for Player %d: ", i + 1);
+        scanf("%s", players[i].name);
+        players[i].score = 0; // initialize each of the players in the array with 0
+    }
+
+    // Clear the buffer after scanf so fgets works inside the loop
+    getchar(); 
+
+    // Requirement 3: Print out each of the question categories and dollar values
+    printf("\n--- The Game is Starting! ---\n");
+    display_categories();
+
+    // Requirement 1: Command line prompt for all interactions
+    printf("\nJeopardy> ");
 
     // Perform an infinite loop getting command input from users until game ends
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
@@ -49,6 +64,8 @@ int main(int argc, char *argv[])
         // Execute the game until all questions are answered
 
         // Display the final results and exit
+
+        printf("Jeopardy> ");
     }
     return EXIT_SUCCESS;
 }
