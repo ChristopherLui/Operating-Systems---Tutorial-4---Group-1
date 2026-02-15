@@ -57,15 +57,91 @@ int main(int argc, char *argv[])
     printf("\nJeopardy> ");
 
     // Perform an infinite loop getting command input from users until game ends
-    while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
-    {
-        // Call functions from the questions and players source files
-
-        // Execute the game until all questions are answered
-
-        // Display the final results and exit
-
-        printf("Jeopardy> ");
+    while (fgets(buffer, BUFFER_LEN, stdin) != NULL) {
+    buffer[strcspn(buffer, "\n")] = 0;
+    // Skip if input is empty
+    if (strlen(buffer) == 0) {
+        printf("Skipping turn.\n");
+        continue;
     }
+    // Quit command
+    if (strcmp(buffer, "quit") == 0) {
+        printf("\nEnding game. Thanks for playing!\n");
+        break;
+    }
+    // Check for correct format
+    char player_name[256];
+    char category[256];
+    int value;
+    // Try to parse the input
+    if (sscanf(buffer, "%s %s %d", player_name, category, &value) != 3) {
+        printf("Invalid format! Use: PlayerName Category Value\n");
+        continue;
+    }
+    // Check if player exists
+    if (!player_exists(players, NUM_PLAYERS, player_name)) {
+        printf("Player '%s' not found! Valid players: ", player_name);
+        for (int i = 0; i < NUM_PLAYERS; i++) {
+            printf("%s%s", players[i].name, (i < NUM_PLAYERS - 1) ? ", " : "\n");
+        }
+        continue;
+    }
+    // Check if question already answered
+    if (already_answered(category, value)) {
+        printf("That question has already been answered! Please choose another question.\n");
+        continue;
+    }
+    // Display the question
+    printf("\n%s selected %s for $%d\n", player_name, category, value);
+    display_question(category, value);
+    // Get player's answer
+    printf("\nYour answer (format: 'what is ...' or 'who is ...'): ");
+    char answer_buffer[BUFFER_LEN];
+    if (fgets(answer_buffer, BUFFER_LEN, stdin) == NULL) {
+        break;  // End of input
+    }
+    answer_buffer[strcspn(answer_buffer, "\n")] = 0;
+    // Tokenize the answer to extract the actual answer part
+    char *tokens[10];  // Array to hold tokenized parts
+    tokenize(answer_buffer, tokens);
+    // Validate the answer
+    if (valid_answer(category, value, tokens[0])) {
+        printf("\n Correct! %s earns $%d\n", player_name, value);
+        update_score(players, NUM_PLAYERS, player_name, value);
+        
+    // Mark question as answered
+    mark_answered(category, value);
+        
+    } else {
+        printf("\n Incorrect! The correct answer was: ");
+        //Display answer
+        printf("\n");
+    }
+    // Show updated scores
+    printf("\nCurrent Scores:\n");
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        printf("  %s: $%d\n", players[i].name, players[i].score);
+    }    
+    // Check if all questions have been answered
+    bool game_over = true;
+    for (int i = 0; i < NUM_QUESTIONS; i++) {
+        if (!questions[i].answered) {
+            game_over = false;
+            break;
+        }
+    }
+    if (game_over) {
+        printf("\n All questions have been answered!\n");
+        break;
+    }
+    // Display remaining categories
+    printf("\n");
+    display_categories();
+    
+    printf("\nJeopardy> ");
+    }
+    printf("\nGame Over!\n");
+    show_results(players, NUM_PLAYERS);
+    
     return EXIT_SUCCESS;
 }
