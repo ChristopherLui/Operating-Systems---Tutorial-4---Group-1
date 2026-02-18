@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "questions.h"
 #include "players.h"
 #include "jeopardy.h"

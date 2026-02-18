@@ -8,10 +8,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include "questions.h"
 
 // Define the questions array here (to be used with extern in questions.h)
 question questions[NUM_QUESTIONS];
+
+// Define the categories that the players can select
+char categories[NUM_CATEGORIES][MAX_LEN] = {
+    "programming", 
+    "algorithms", 
+    "databases"
+};
 
 // Initializes the array of questions for the game
 void initialize_game(void)
