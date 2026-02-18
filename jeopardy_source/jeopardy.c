@@ -57,72 +57,48 @@ int main(int argc, char *argv[])
 
     // Perform an infinite loop getting command input from users until game ends
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
-    {
-        buffer[strcspn(buffer, "\n")] = 0;
-
-        // Skip if input is empty
-        if (strlen(buffer) == 0) {
-            printf("Skipping turn.\n");
-            printf("\nJeopardy> ");
-            continue;
+{
+    buffer[strcspn(buffer, "\n")] = 0;
+    
+    // Skip empty input
+    if (strlen(buffer) == 0) {
+        printf("Jeopardy> ");
+        continue;
+    }
+    
+    // Quit command
+    if (strcmp(buffer, "quit") == 0) {
+        printf("\nEnding game. Thanks for playing!\n");
+        break;
+    }
+    
+    // Parse: PlayerName Category Value
+    char player_name[256];
+    char category[256];
+    int value;
+    
+    if (sscanf(buffer, "%s %s %d", player_name, category, &value) != 3) {
+        printf("Invalid format! Use: PlayerName Category Value\n");
+        printf("Jeopardy> ");
+        continue;
+    }
+    
+    // Validate player exists
+    if (!player_exists(players, NUM_PLAYERS, player_name)) {
+        printf("Player '%s' not found! Valid players: ", player_name);
+        for (int i = 0; i < NUM_PLAYERS; i++) {
+            printf("%s%s", players[i].name, (i < NUM_PLAYERS - 1) ? ", " : "\n");
         }
-
-        // Quit command
-        if (strcmp(buffer, "quit") == 0) {
-            printf("\nEnding game. Thanks for playing!\n");
-            break;
-        }
-
-        // Requirement 4: The program must accept the name of the person selected to pick
-        // the category and question and validate that the name matches one of the players.
-        char player_name[BUFFER_LEN];
-        while (1)
-        {
-            printf("Enter the name of the player selecting: ");
-            if (fgets(player_name, BUFFER_LEN, stdin) == NULL) {
-                return EXIT_SUCCESS;
-            }
-            player_name[strcspn(player_name, "\n")] = 0;
-
-            // Validate the entered name is one of the registered players
-            if (player_exists(players, NUM_PLAYERS, player_name)) {
-                break;
-            }
-
-            // If invalid, show valid player names and ask again
-            printf("Player '%s' not found. Valid players: ", player_name);
-            for (int i = 0; i < NUM_PLAYERS; i++) {
-                printf("%s%s", players[i].name, (i < NUM_PLAYERS - 1) ? ", " : "\n");
-            }
-        }
-
-        // Requirement 5: Once player name is entered, prompt for category and dollar value.
-        // Verify that the chosen category/value has not already been answered.
-        char category[BUFFER_LEN];
-        int value = 0;
-
-        while (1)
-        {
-            printf("Enter category: ");
-            if (fgets(category, BUFFER_LEN, stdin) == NULL) {
-                return EXIT_SUCCESS;
-            }
-            category[strcspn(category, "\n")] = 0;
-
-            printf("Enter dollar value: ");
-            if (fgets(buffer, BUFFER_LEN, stdin) == NULL) {
-                return EXIT_SUCCESS;
-            }
-            value = atoi(buffer);
-
-            // Check if question already answered
-            if (already_answered(category, value)) {
-                printf("That question has already been answered! Choose another.\n");
-                continue;
-            }
-
-            break;
-        }
+        printf("Jeopardy> ");
+        continue;
+    }
+    
+    // Check if already answered
+    if (already_answered(category, value)) {
+        printf("That question has already been answered!\n");
+        printf("Jeopardy> ");
+        continue;
+    }
 
         // Display the question
         printf("\n%s selected %s for $%d\n", player_name, category, value);
